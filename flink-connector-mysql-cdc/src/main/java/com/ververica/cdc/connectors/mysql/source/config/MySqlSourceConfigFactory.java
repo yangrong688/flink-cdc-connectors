@@ -23,6 +23,7 @@ import org.apache.flink.annotation.Internal;
 import com.ververica.cdc.connectors.mysql.debezium.EmbeddedFlinkDatabaseHistory;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
+import io.debezium.relational.history.DatabaseHistory;
 
 import java.io.Serializable;
 import java.time.Duration;
@@ -245,6 +246,18 @@ public class MySqlSourceConfigFactory implements Serializable {
     /** The Debezium MySQL connector properties. For example, "snapshot.mode". */
     public MySqlSourceConfigFactory debeziumProperties(Properties properties) {
         this.dbzProperties = properties;
+        String defaultFilterDDL = DatabaseHistory.DDL_FILTER.defaultValueAsString();
+        String[] ignoreAction = {"INSERT INTO ", "DELETE FROM ", "UPDATE "};
+        String[] ignoreDatabase = {"ptdb", "_cdbcksum__.+"};
+        StringBuilder patterns = new StringBuilder();
+        for (String db : ignoreDatabase) {
+            for (String action : ignoreAction) {
+                patterns.append(action).append(db).append("\\..*,");
+                patterns.append(action).append("`").append(db).append("`").append("\\..*,");
+            }
+        }
+        String filterDDL = patterns.toString() + defaultFilterDDL;
+        properties.put(DatabaseHistory.DDL_FILTER.name(), filterDDL);
         return this;
     }
 
