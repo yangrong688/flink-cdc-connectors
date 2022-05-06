@@ -186,7 +186,7 @@ public class MySqlSourceOptions {
     public static final ConfigOption<Double> SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_UPPER_BOUND =
             ConfigOptions.key("split-key.even-distribution.factor.upper-bound")
                     .doubleType()
-                    .defaultValue(1000.0d)
+                    .defaultValue(2.0d)
                     .withDescription(
                             "The upper bound of split key distribution factor. The distribution factor is used to determine whether the"
                                     + " table is evenly distribution or not."
